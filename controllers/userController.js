@@ -1,5 +1,7 @@
 const User=require('../models/userModel');
 const jwt=require("jsonwebtoken");
+const asyncErrorHandler=require('../utils/asyncErrorHandler');
+const CustomError = require('../utils/CustomError');
 
 const generateToken=(id)=>{
     return jwt.sign({id:id},process.env.JWT_SECRET,{
@@ -9,22 +11,14 @@ const generateToken=(id)=>{
 
 
 //user sign up
-exports.signup=async (req,res)=>{
-    try {
+exports.signup=asyncErrorHandler(async (req,res,next)=>{
         let user=await User.findOne({email:req.body.email});
         if(user){
-          return res.status(400).json({
-                msg:"User with this already exists"
-            });
+            return next(new CustomError("User with this already exists",400));
         }
         user=await User.create(req.body);
         res.status(201).json({
             user,
             token:generateToken(user._id)
         })
-    } catch (error) {
-        res.status(500).json({
-            msg:error.message
-        });
-    }
-};
+    })
