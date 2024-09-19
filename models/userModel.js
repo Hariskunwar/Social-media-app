@@ -19,6 +19,14 @@ const userSchema=new mongoose.Schema({
     },
     profile:String,
     bio:String,
+    followers:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
+    }],
+    followings:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
+    }],
 },{timestamps:true});
 
 userSchema.pre('save',async function(next){
