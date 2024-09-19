@@ -39,3 +39,13 @@ exports.signup=asyncErrorHandler(async (req,res,next)=>{
             token:generateToken(user._id)
         });
     });
+
+    exports.getUserProfile=asyncErrorHandler(async (req,res,next)=>{
+        const user=await User.findById(req.params.userId);
+        if(!user){
+            return next(new CustomError('User not found',404));
+        }
+        res.status(200).json({
+            data:user
+        });
+    });
