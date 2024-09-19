@@ -14,7 +14,8 @@ const userSchema=new mongoose.Schema({
     password:{
         type:String,
         required:[true,"Enter password"],
-        minlength:[6,'Password should have atleast 6 character']
+        minlength:[6,'Password should have atleast 6 character'],
+        select:false
     },
     profile:String,
     bio:String,
@@ -27,5 +28,9 @@ userSchema.pre('save',async function(next){
     this.password=await bcrypt.hash(this.password,10);
     next();
 })
+
+userSchema.methods.comparePassword=async function(userEnterPassword,dbPassword){
+    return bcrypt.compare(userEnterPassword,dbPassword);
+}
 
 module.exports=mongoose.model('User',userSchema);
