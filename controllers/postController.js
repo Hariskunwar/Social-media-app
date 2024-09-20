@@ -43,3 +43,25 @@ exports.getUserPosts=asyncErrorHandler(async (req,res,next)=>{
         data:posts
     });
 });
+
+//post like and unlike functionality
+exports.likeUnlikePost=asyncErrorHandler(async (req,res,next)=>{
+    const {postId}=req.params;
+    const userId=req.user._id;
+    const post=await Post.findById(postId);
+    if(!post){
+        return next(new CustomError("Post not found",404));
+    }
+    //if user already liked post then remove like
+    if(post.likes.includes(userId)){
+        await Post.findByIdAndUpdate(postId,{$pull:{likes:userId}});
+        res.status(200).json({
+            message:"post unliked successfully"
+        })
+    }else{
+        await Post.findByIdAndUpdate(postId,{$push:{likes:userId}});
+        res.status(200).json({
+            message:"post liked successfully" 
+         })
+    }
+});
