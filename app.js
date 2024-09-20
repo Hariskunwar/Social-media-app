@@ -7,7 +7,7 @@ const app=express();
 app.use(express.json());
 
 app.use('/api/v1/users',require("./routes/userRoute"));
-
+app.use("/api/v1/posts",require('./routes/postRoute'));
 
 //default route
 app.all("*",(req,res,next)=>{
