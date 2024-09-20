@@ -26,7 +26,19 @@ exports.getPost=asyncErrorHandler(async (req,res,next)=>{
 //get posts of user followings
 exports.getFeed=asyncErrorHandler(async (req,res,next)=>{
     const user=await User.findById(req.user._id);
-    const posts=await Post.find({postedBy:{$in:user.followings}});
+    const posts=await Post.find({postedBy:{$in:user.followings}}).sort({createdAt:-1});
+    res.status(200).json({
+        data:posts
+    });
+});
+
+//get user all post
+exports.getUserPosts=asyncErrorHandler(async (req,res,next)=>{
+    const user=await User.findById(req.params.id);
+    if(!user){
+        return next(new CustomError("User not found",404));
+    }
+    const posts=await Post.find({postedBy:user._id}).sort({createdAt:-1});
     res.status(200).json({
         data:posts
     });
