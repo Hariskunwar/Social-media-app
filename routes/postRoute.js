@@ -1,6 +1,6 @@
 const express=require("express");
 const { protect } = require("../middlewares/authMiddleware");
-const { createPost, getPost, getFeed, getUserPosts, likeUnlikePost, addComment, deleteComment } = require("../controllers/postController");
+const { createPost, getPost, getFeed, getUserPosts, likeUnlikePost, addComment, deleteComment, deletePost } = require("../controllers/postController");
 
 const router=express.Router();
 
@@ -11,5 +11,6 @@ router.post("/like/:postId",protect,likeUnlikePost);
 router.get("/:id",protect,getPost);
 router.post("/comment/:postId",protect,addComment);
 router.delete('/comment/:postId/:commentId',protect,deleteComment);
+router.delete("/:id",protect,deletePost);
 
 module.exports=router;

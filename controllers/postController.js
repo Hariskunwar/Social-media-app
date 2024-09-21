@@ -107,6 +107,22 @@ exports.deleteComment=asyncErrorHandler(async (req,res,next)=>{
             message:"comment deleted successfully"
         })
     }else{
-        next(new CustomError("You are not authorized to delete this comment"));
+        next(new CustomError("You are not authorized to delete this comment",401));
     }
+});
+
+//delete post
+exports.deletePost=asyncErrorHandler(async (req,res,next)=>{
+    const post=await Post.findById(req.params.id);
+    if(!post){
+        return next(new CustomError("Post not found",404));
+    }
+    //only post owner can delete post
+    if(post.postedBy.toString()!==req.user._id.toString()){
+        return next(new CustomError("Unauthorized to delete post",401))
+    }
+    await Post.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+        message:'post delete successfully'
+    });
 });
