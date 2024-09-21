@@ -65,3 +65,48 @@ exports.likeUnlikePost=asyncErrorHandler(async (req,res,next)=>{
          })
     }
 });
+
+//comment on post
+exports.addComment=asyncErrorHandler(async (req,res,next)=>{
+    const {postId}=req.params;
+    const {comment}=req.body;
+    let post=await Post.findById(postId);
+    if(!post){
+        return next(new CustomError("Post not found",404));
+    }
+    post=await Post.findByIdAndUpdate(postId,{$push:{comments:{
+        commentBy:req.user._id,
+        comment:comment
+    }}},{new:true});
+    res.status(200).json({
+        message:"comment added successfully",
+        data:post
+    });
+});
+
+//delete a comment
+exports.deleteComment=asyncErrorHandler(async (req,res,next)=>{
+    const {postId,commentId}=req.params;
+    const post=await Post.findById(postId);
+    if(!post){
+        return next(new CustomError("Post not found",404));
+    }
+    const commentIndex=post.comments.findIndex((comment)=>{
+        return comment._id.toString()===commentId.toString();
+    });
+    if(commentIndex===-1){
+        return next(new CustomError("Comment not found",404));
+    }
+    //only post owner and comment owner can delete comment
+    if(
+        post.postedBy.toString()===req.user._id.toString()||
+        post.comments[commentIndex].commentBy.toString()===req.user._id.toString()
+    ){
+        await Post.findByIdAndUpdate(postId,{$pull:{comments:{_id:commentId}}});
+        res.status(200).json({
+            message:"comment deleted successfully"
+        })
+    }else{
+        next(new CustomError("You are not authorized to delete this comment"));
+    }
+});
